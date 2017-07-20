@@ -1,0 +1,4 @@
+qinjun,15,male,30000,chengdu
+xieqiang,25,male,288888,chongqing
+liaofeng,25,male,23443234,guangxi
+yuxia,18,female,2342342,chengdu
