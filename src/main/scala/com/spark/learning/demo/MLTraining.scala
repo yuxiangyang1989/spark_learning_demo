@@ -1,6 +1,6 @@
 package com.spark.learning.demo
 
-import org.apache.spark.mllib.classification.SVMWithSGD
+import org.apache.spark.mllib.classification.{SVMModel, SVMWithSGD}
 import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
 import org.apache.spark.mllib.util.MLUtils
 import org.apache.spark.{SparkContext, SparkConf}
@@ -12,7 +12,8 @@ object MLTraining {
 
   def main(args: Array[String]) {
 
-    val inputFile = "files/HR_Comma_sep_libSVM_train.txt"
+    val inputFile = "files/HR_Comma_sep_libSVM.txt"
+
     val modelFile = "files/HR_Comma_model"
 
     val sparkConf = new SparkConf()
@@ -23,6 +24,7 @@ object MLTraining {
 
     val data = MLUtils.loadLibSVMFile(sc, inputFile)
 
+    // 60%的数据用作训练数据, 40%的数据用作测试
     val splits = data.randomSplit(Array(0.6, 0.4), seed = 21l)
     val training = splits(0)
     val test = splits(1)
@@ -31,6 +33,7 @@ object MLTraining {
     val model = SVMWithSGD.train(training, numIterations)
 
     model.clearThreshold()
+
 
     val scoreAndLabels = test.map { point =>
       val score = model.predict(point.features)
@@ -43,7 +46,6 @@ object MLTraining {
     println("Area under ROC = " + auROC)
 
 //    model.save(sc, modelFile)
-
   }
 
 }

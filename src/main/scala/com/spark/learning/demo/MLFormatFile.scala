@@ -11,8 +11,8 @@ object MLFormatFile {
 
   def main(args: Array[String]) {
 
-    val inputFile = "files/HR_Comma_sep.csv"
-    val outputFile = "files/HR_Comma_sep_libSVM.txt"
+    val inputFile = "files/HR_Comma_sep.csv" //输入文件
+    val outputFile = "files/HR_Comma_sep_libSVM.txt"  //格式化后的输出
 
     val formatLibSVM = Source.fromFile(inputFile).getLines() map {line =>
       val Array(satisfaction_level,
@@ -27,14 +27,15 @@ object MLFormatFile {
         salary) = line.split(",", -1).map(_.trim)
 
       val label = left
+
       val format_salary = salary match {
-        case "low" => "0"
-        case "medium" => "1"
-        case "high" => "2"
-        case _ => "3"
+        case "low" => "1"
+        case "medium" => "2"
+        case "high" => "3"
+        case _ => "0"
       }
       val format_sales = sales match {
-        case "sales" => "0"
+        case "sales" => "10"
         case "accounting" => "1"
         case "hr" => "2"
         case "technical" => "3"
@@ -44,7 +45,7 @@ object MLFormatFile {
         case "product_mng" => "7"
         case "marketing" => "8"
         case "RandD" => "9"
-        case _ => "10"
+        case _ => "0"
       }
       val infoArray = Array[String](satisfaction_level,
         last_evaluation,

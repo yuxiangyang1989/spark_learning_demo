@@ -39,6 +39,8 @@ object SparkStreamingDemo {
 
     val time = System.currentTimeMillis()
 //    result.print()
+
+    // 结果输出至kafka另外一个topic
     result.saveAsTextFiles(s"files/result/$time")
 
     ssc.start()
