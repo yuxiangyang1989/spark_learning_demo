@@ -1,0 +1,48 @@
+import java.util.Properties
+
+import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
+import org.apache.spark.streaming.dstream.ReceiverInputDStream
+import org.apache.spark.streaming.kafka.KafkaUtils
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.{SparkConf, SparkContext}
+
+/**
+  * Created by Administrator on 2017/7/21.
+  */
+object SparkStreamDemo {
+    def main(args: Array[String]): Unit = {
+      val sparkConf = new SparkConf()
+          .setMaster("local[2]")
+          .setAppName("SparkStreamDemo")
+
+      val sc = new SparkContext(sparkConf)
+      val ssc = new StreamingContext(sc,Seconds(10))
+
+      val topic="test"
+      val mumThreads =1
+      val group = "testGroup"
+      val zkQuorum="192.168.200.113:2181"
+      val topicMap = topic.split(",").map((_,mumThreads)).toMap
+      val kafkaSteam: ReceiverInputDStream[(String,String)] =
+        KafkaUtils.createStream(ssc,zkQuorum,group,topicMap)
+
+      val result = kafkaSteam.map(_._2.split(",")(0)).map((_, 1))
+        .reduceByKey((left, right) => left+right)
+      result.foreachRDD(rdd=>{
+          rdd.foreach(f=>{
+          val props =  new Properties()
+          props.put("metadata.broker.list", "192.168.200.113:9092")
+          props.put("serializer.class","kafka.serializer.StringEncoder")
+          props.put("request.required.acks","1")
+          val producer = new Producer[String, String](new ProducerConfig(props))
+          producer.send(new KeyedMessage[String,String]("myTest", f._1+","+f._2))
+          producer.close()
+        })
+
+      })
+
+
+      ssc.start()
+      ssc.awaitTermination()
+    }
+}
